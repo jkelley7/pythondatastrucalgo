@@ -122,10 +122,22 @@ class BinaryGate(LogicGate):
         self.pinB = None
 
     def getPinA(self):
-        return int(input("Enter Pin A input for gate "+ self.getLabel()+"-->"))
+        if self.pinA == None:
+            return input("Enter Pin A input for gate " + self.getLabel()+"-->")
+        else:
+            return self.pinA.getFrom().getOutput()
 
     def getPinB(self):
         return int(input("Enter Pin B input for gate "+ self.getLabel()+"-->"))
+    
+    def setNextPin(self,source):
+        if self.pinA == None:
+            self.pinA = source
+        else:
+            if self.pinB == None:
+                self.pinB = source
+            else:
+                raise RuntimeError("Error: NO EMPTY PINS")
 
 class UnaryGate(LogicGate):
 
@@ -151,5 +163,54 @@ class AndGate(BinaryGate):
         else:
             return 0
 
+class OrGate(BinaryGate):
+    def __init__(self, n):
+        super().__init__(n)
+    
+    def performGateLogic(self):
+
+        a = self.getPinA()
+        b = self.getPinB()
+        if a==1 or b==1:
+            return 1
+        else:
+            return 0
+
+class NotGate(UnaryGate):
+    def __init__(self, n):
+        super().__init__(n)
+    
+    def performGateLogic(self):
+
+        a = self.getPin()
+        
+        if a==1:
+            return 0
+        else:
+            return 1
+
+
 g1 = AndGate("G1")
->>> g1.getOutput()
+g1.getOutput()
+
+g2 = OrGate("G2")
+g2.getOutput()
+
+g3 = NotGate("G3")
+g3.getOutput()
+
+#This is a Has a Relationship
+class Connector:
+
+    def __init__(self, fgate, tgate):
+        self.fromgate = fgate
+        self.togate = tgate
+
+        tgate.setNextPin(self)
+
+    def getFrom(self):
+        return self.fromgate
+
+    def getTo(self):
+        return self.togate
+    
